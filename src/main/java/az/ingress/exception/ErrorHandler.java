@@ -1,10 +1,14 @@
 package az.ingress.exception;
 
 import static az.ingress.exception.ErrorMessage.UNEXPECTED_ERROR;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 import az.ingress.logger.ApplicationLogger;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -18,7 +22,7 @@ public class ErrorHandler {
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     public ErrorResponse handle(Exception ex) {
         log.error("Exception: ", ex);
-        return new ErrorResponse(UNEXPECTED_ERROR.getValue());
+        return new ErrorResponse(UNEXPECTED_ERROR.getMessage());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
@@ -26,5 +30,27 @@ public class ErrorHandler {
     public ErrorResponse handle(HttpRequestMethodNotSupportedException ex) {
         log.error("HttpRequestMethodNotSupportedException: ", ex);
         return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(AlreadyExistException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ErrorResponse handle(AlreadyExistException ex) {
+        log.error("AlreadyExistException: ", ex);
+        return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(NOT_FOUND)
+    public ErrorResponse handle(NotFoundException ex) {
+        log.error("NotFoundException: ", ex);
+        return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handle(AuthenticationException ex) {
+        log.error("AuthenticationException: ", ex);
+        return ResponseEntity
+                .status(ex.getStatusCode())
+                .body(new ErrorResponse(ex.getMessage()));
     }
 }

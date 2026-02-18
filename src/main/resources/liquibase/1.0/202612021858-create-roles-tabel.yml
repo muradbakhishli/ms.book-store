@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 202612021852
+      author: Murad Baxisli
+      changes:
+        - createTable:
+            tableName: roles
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: authority
+                  type: VARCHAR(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    foreignKeyName: fk_roles_users
+                    references: users(id)
+                    nullable: false
